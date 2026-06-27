@@ -14,3 +14,7 @@ Here are some ideas to get you started:
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
 -->
+
+## 项目文档
+
+- [市西路社区卫生服务中心 AI 中医健康管理 SaaS 开发文档](docs/市西路社区卫生服务中心-AI中医健康管理SaaS开发文档.md)
