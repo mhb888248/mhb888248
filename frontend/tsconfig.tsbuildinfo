@@ -1,0 +1,1 @@
+{"root":["./src/api.ts","./src/main.ts","./src/router.ts","./src/store/auth.ts","./src/App.vue","./src/views/Campaigns.vue","./src/views/Dashboard.vue","./src/views/Login.vue","./src/views/ResidentDetail.vue","./src/views/Residents.vue","./env.d.ts"],"errors":true,"version":"5.9.3"}
