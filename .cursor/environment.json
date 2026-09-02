@@ -1,0 +1,20 @@
+{
+  "name": "市西路社区健康管理 SaaS",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "backend",
+      "command": "cd backend && npm run start:dev",
+      "description": "NestJS API on http://localhost:3000/api (auth, residents, campaigns, metrics, risk, followups, dashboard)."
+    },
+    {
+      "name": "frontend",
+      "command": "cd frontend && npm run dev",
+      "description": "Vue 3 + Element Plus admin/clinician web on http://localhost:5173 (proxies /api to the backend)."
+    }
+  ],
+  "ports": [
+    { "name": "backend-api", "port": 3000 },
+    { "name": "frontend-web", "port": 5173 }
+  ]
+}

@@ -1,0 +1,120 @@
+// Data model for the AI TCM community health management SaaS (MVP subset of §8.1).
+// SQLite keeps the dev environment self-contained; models stay DB-agnostic.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  users     User[]
+  residents Resident[]
+  campaigns Campaign[]
+}
+
+model User {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  username     String   @unique
+  displayName  String
+  role         String // SUPER_ADMIN | MANAGER | DOCTOR | HEALTH_MANAGER
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Resident {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  name         String
+  gender       String // M | F
+  age          Int
+  phone        String?
+  chronicHistory String?
+  source       String   @default("MANUAL") // MANUAL | CAMPAIGN | REFERRAL
+  createdAt    DateTime @default(now())
+
+  metrics       MetricRecord[]
+  riskRecords   RiskLevelRecord[]
+  followupPlans FollowupPlan[]
+  registrations CampaignRegistration[]
+}
+
+model Campaign {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  template  String // e.g. TCM_CONSTITUTION, CHRONIC_SCREENING
+  status    String   @default("ACTIVE") // DRAFT | ACTIVE | CLOSED
+  startAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  registrations CampaignRegistration[]
+}
+
+model CampaignRegistration {
+  id          String    @id @default(cuid())
+  campaignId  String
+  campaign    Campaign  @relation(fields: [campaignId], references: [id])
+  residentId  String?
+  resident    Resident? @relation(fields: [residentId], references: [id])
+  name        String
+  phone       String?
+  checkedIn   Boolean   @default(false)
+  checkedInAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model MetricRecord {
+  id         String   @id @default(cuid())
+  residentId String
+  resident   Resident @relation(fields: [residentId], references: [id])
+  metricType String // SYSTOLIC | DIASTOLIC | GLUCOSE | BMI | HEART_RATE | SPO2
+  value      Float
+  unit       String
+  sourceType String   @default("MANUAL") // DEVICE | MANUAL | INTERFACE
+  measuredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+}
+
+model RiskLevelRecord {
+  id         String   @id @default(cuid())
+  residentId String
+  resident   Resident @relation(fields: [residentId], references: [id])
+  level      String // LOW | MEDIUM | HIGH
+  serviceLevel Int // 1 | 2 | 3
+  reasons    String // JSON-encoded array of reason strings
+  createdAt  DateTime @default(now())
+}
+
+model FollowupPlan {
+  id         String   @id @default(cuid())
+  residentId String
+  resident   Resident @relation(fields: [residentId], references: [id])
+  riskLevel  String
+  frequency  String
+  channel    String
+  createdAt  DateTime @default(now())
+
+  tasks FollowupTask[]
+}
+
+model FollowupTask {
+  id        String   @id @default(cuid())
+  planId    String
+  plan      FollowupPlan @relation(fields: [planId], references: [id])
+  title     String
+  dueDay    Int // day offset from plan creation
+  status    String   @default("PENDING") // PENDING | DONE
+  createdAt DateTime @default(now())
+}
